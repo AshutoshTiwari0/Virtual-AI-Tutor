@@ -53,7 +53,12 @@ def recommend_youtube_urls(topic)-> str:
     """
     Recommend Youtube Videos for given topic. The video should have 1000+ views and within 1 year time 
     """ 
-    results=json.loads(YoutubeSearch(topic,max_results=20).to_json()) #search for 20 videos on given topic. Filter videos having 1k+ views and less than 1 year upload time for relevancy
+    try:
+        results=json.loads(YoutubeSearch(topic,max_results=20).to_json()) #search for 20 videos on given topic. Filter videos having 1k+ views and less than 1 year upload time for relevancy
+    except Exception as e:
+        print("YouTube search failed:", e)
+        return "Unable to fetch YouTube recommendations right now."
+    
 
     for videos in results['videos']:
         if int(videos['views'].split(' views')[0].replace(',',''))>=1000 and checkRelevancy(videos['publish_time']):
@@ -65,7 +70,9 @@ def recommend_youtube_urls(topic)-> str:
 def checkRelevancy(date:str)->bool:
     Date=date.split(" ")[0]
     relevancy=date.split(" ")[1]
-    
+    if "Streamed" in Date:
+        return False
+
     d=int(Date)
 
     if relevancy in ['weeks', 'week'] and d <= 4 \
@@ -138,8 +145,8 @@ def read_research_papers(topic)->str:
 @tool 
 def notes_and_summary_generator(text):
     """Take the text provided and generate notes and summary for it. Use proper headings for notes introduction, methodology, result, summary, exam centric questions. Try to answer in less than 600 words"""
-    model = ChatGoogleGenerativeAI(
-    model="gemini-3.6-flash")
+    model = ChatGroq(
+        model_name="openai/gpt-oss-120b")
 
     response=model.invoke(f"Take the following text {text} and make short summary notes for it applicable for exam.")
 
@@ -307,6 +314,23 @@ class PPT(BaseModel):
     key_takeaways:str=Field(description="Key takeways of given topic")
     exam_questions:str=Field(description="Exam centric questions on given topics")
 
+
+def clean_text(text):
+    if isinstance(text, str):
+        return text.encode("latin-1", "replace").decode("latin-1")
+
+    elif isinstance(text, list):
+        return [clean_text(item) for item in text]
+
+    elif isinstance(text, dict):
+        return {
+            key: clean_text(value)
+            for key, value in text.items()
+        }
+
+    return text
+
+
 @tool
 def ppt_generator(content):
     """Generate a PPT with following slides
@@ -328,6 +352,7 @@ def ppt_generator(content):
     Slide 8: Exam Centric Questions
     
     """
+
     # Initialize Groq LLM
     llm = ChatGroq(
         model_name="openai/gpt-oss-120b",
@@ -367,6 +392,8 @@ def ppt_generator(content):
     "exam_questions": ppt_data.exam_questions
     }
 
+    variables = clean_text(variables)
+
     renderer = PPTXRenderer(
     r"C:\Users\Dell\Desktop\Generative AI\LangGraph\Virtual AI Tutor\src\tools\template.pptx")
 
@@ -377,4 +404,11 @@ def ppt_generator(content):
     return output_path
 
 
-ppt_generator.invoke("""Optimization) enables stable, single-rollout actor-critic RL training for Large Language Models (LLMs).",\n "It matches or exceeds multi-sample group-based methods (like GRPO) while using only 1 response per prompt.",\n "Introduces a suite of 6 targeted engineering and algorithmic fixes to overcome standard PPO instabilities."\n ],\n "Core Concepts": [\n "Identifies 5 root failure modes in standard LLM PPO: ratio clipping flaws, bootstrapping errors, fixed GAE mismatches, unbounded value heads, and advantage normalization noise.",\n "Token-level advantage estimation provides fine-grained credit assignment across generated responses.",\n "Privileged critic design utilizes ground-truth reference data during training without modifying policy inference."\n ],\n "Methodology": [\n "Divergence PPO (DPPO): Constrains absolute probabiliy shifts rather than probability ratios to avoid over-clipping low-probability tokens.",\n "Bounded Value Head & MC Targets: Binds critic predictions to valid reward ranges (e.g., via sigmoid/tanh) and uses full-episode targets to prevent error propagation.",\n "Length-Adaptive GAE & Unnormalized Advantages: Scales lambda based on response length T and removes batch advantage normalization to preserve raw signal."\n ],\n "Application": [\n "Targeted at reinforcement learning alignment for LLMs on mathematical reasoning and rubric-following tasks.",\n "Proven scalable across diverse architectures, from small 1.5B parameter models up to 30B Mixture-of-Experts (MoE) models.",\n "Used strictly during training; the critic is discarded afterward, maintaining standard inference inputs."\n ],\n "Advantages and Limitations": [\n "Advantage: Significantly higher rollout efficiency, needing only 1 response per prompt instead of G >= 4 samples.",\n "Advantage: Combines the stability of group-based methods with the fine-grained credit assignment of token-level critics.",\n "Limitation: Requires memory and compute overhead to maintain a separate critic model during the training phase."\n ],\n "Summary": [\n "BPCO stabilizes single-rollout actor-critic RL for LLMs using six key algorithmic adjustments.",\n "Proves that regularized token-level critics are a compute-efficient alternative to multi-sample group-relative estimators.",\n "Delivers state-of-the-art RL efficiency and performance across varied model sizes and reasoning domains.""")
+# ppt_generator.invoke("""Optimization) enables stable, single-rollout actor-critic RL training for Large Language Models (LLMs).",\n "It matches or exceeds multi-sample group-based methods (like GRPO) while using only 1 response per prompt.",\n "Introduces a suite of 6 targeted engineering and algorithmic fixes to overcome standard PPO instabilities."\n ],\n "Core Concepts": [\n "Identifies 5 root failure modes in standard LLM PPO: ratio clipping flaws, bootstrapping errors, fixed GAE mismatches, unbounded value heads, and advantage normalization noise.",\n "Token-level advantage estimation provides fine-grained credit assignment across generated responses.",\n "Privileged critic design utilizes ground-truth reference data during training without modifying policy inference."\n ],\n "Methodology": [\n "Divergence PPO (DPPO): Constrains absolute probabiliy shifts rather than probability ratios to avoid over-clipping low-probability tokens.",\n "Bounded Value Head & MC Targets: Binds critic predictions to valid reward ranges (e.g., via sigmoid/tanh) and uses full-episode targets to prevent error propagation.",\n "Length-Adaptive GAE & Unnormalized Advantages: Scales lambda based on response length T and removes batch advantage normalization to preserve raw signal."\n ],\n "Application": [\n "Targeted at reinforcement learning alignment for LLMs on mathematical reasoning and rubric-following tasks.",\n "Proven scalable across diverse architectures, from small 1.5B parameter models up to 30B Mixture-of-Experts (MoE) models.",\n "Used strictly during training; the critic is discarded afterward, maintaining standard inference inputs."\n ],\n "Advantages and Limitations": [\n "Advantage: Significantly higher rollout efficiency, needing only 1 response per prompt instead of G >= 4 samples.",\n "Advantage: Combines the stability of group-based methods with the fine-grained credit assignment of token-level critics.",\n "Limitation: Requires memory and compute overhead to maintain a separate critic model during the training phase."\n ],\n "Summary": [\n "BPCO stabilizes single-rollout actor-critic RL for LLMs using six key algorithmic adjustments.",\n "Proves that regularized token-level critics are a compute-efficient alternative to multi-sample group-relative estimators.",\n "Delivers state-of-the-art RL efficiency and performance across varied model sizes and reasoning domains.""")
+
+
+
+
+
+
+# print(web_search.invoke("machine learning"))
