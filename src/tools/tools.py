@@ -22,24 +22,24 @@ from pydantic import BaseModel, Field
 from langchain.agents import create_agent
 
 
-
+from pathlib import Path
 
 load_dotenv()
 
 tavily_api_key=os.getenv("TAVILY_API_KEY")
 google_api_key=os.getenv("GOOGLE_API_KEY")
-content=[]
-research_paper_content=[]
+
 
 @tool
 def web_search(query)-> str:
+
     """
     Search the internet for given user query and collect relevant points which can be useful for teaching the mentioned topic.
     """
     tavily_client=TavilyClient(api_key=tavily_api_key)
     response=tavily_client.search(query)
 
-
+    content=[]
     # print(response)
     for r in response['results']:
        content.append(r["content"])
@@ -47,12 +47,15 @@ def web_search(query)-> str:
     return content
 
 
-recommendations=[]
 @tool 
 def recommend_youtube_urls(topic)-> str:
     """
     Recommend Youtube Videos for given topic. The video should have 1000+ views and within 1 year time 
     """ 
+    
+    recommendations=[]
+
+
     try:
         results=json.loads(YoutubeSearch(topic,max_results=20).to_json()) #search for 20 videos on given topic. Filter videos having 1k+ views and less than 1 year upload time for relevancy
     except Exception as e:
@@ -314,9 +317,13 @@ def pdf_generator(text):
 
     pdf.multi_cell(0, 8, text)
 
-    pdf.output("notes.pdf")
+    BASE_DIR = Path(__file__).resolve().parent
 
-    return "PDF generated successfully"   
+    output_path = BASE_DIR / "notes.pdf"
+
+    pdf.output(str(output_path))
+
+    return str(output_path) 
 
 #works perfectly hehe
 #pdf_generator.invoke("""Machine-learning-based anomaly detection is increasingly used in industrial control systems (ICS), yet most studies assume that detector training data is trustworthy. In practice, training data may be corrupted through compromised logs, labeling errors, manipulated historian records, or unsafe retraining processes. This paper evaluates the robustness of offline ICS anomaly-detection pipelines on the Secure Water Treatment (SWaT) benchmark under training-time contamination. We assess 11 heterogeneous anomaly detectors under three contamination strategies: random injection, similarity-targeted injection, and feature-noise injection. The first two insert attack samples into the nominal training pool, while the third adds bounded Gaussian noise to selected normal training samples. These attacks are contamination-based rather than gradient-driven poisoning methods. Contamination budgets from 1% to 10% are evaluated using clean validation and test sets under a unified offline protocol. The results show that robustness is strongly model-dependent and cannot be predicted from clean-data performance alone. Injection-based contamination causes the greatest degradation, particularly for local-density and distance-based detectors, whereas feature-noise contamination has a comparatively limited effect. PCA, SVM, HBOS, and IForest remain relatively stable, while the tuned neural detectors demonstrate intermediate robustness. Overall, the findings highlight the importance of training-data integrity in ML-enabled ICS monitoring, subject to the evaluated dataset, models, and threat assumptions.""")
@@ -413,14 +420,25 @@ def ppt_generator(content):
 
     variables = clean_text(variables)
 
-    renderer = PPTXRenderer(
-    r"C:\Users\Dell\Desktop\Generative AI\LangGraph\Virtual AI Tutor\src\tools\template.pptx")
+    # renderer = PPTXRenderer(
+    # r"C:\Users\Dell\Desktop\Generative AI\LangGraph\Virtual AI Tutor\src\tools\template.pptx")
 
-    output_path = "notes.pptx"
+    # output_path = "notes.pptx"
 
-    renderer.render(output_path, variables)
+    # renderer.render(output_path, variables)
 
-    return output_path
+    # return output_path
+
+    BASE_DIR = Path(__file__).resolve().parent
+    template_path = BASE_DIR / "template.pptx"
+
+    renderer = PPTXRenderer(str(template_path))
+
+    output_path = BASE_DIR / "notes.pptx"
+
+    renderer.render(str(output_path), variables)
+
+    return str(output_path)
 
 
 # ppt_generator.invoke("""Optimization) enables stable, single-rollout actor-critic RL training for Large Language Models (LLMs).",\n "It matches or exceeds multi-sample group-based methods (like GRPO) while using only 1 response per prompt.",\n "Introduces a suite of 6 targeted engineering and algorithmic fixes to overcome standard PPO instabilities."\n ],\n "Core Concepts": [\n "Identifies 5 root failure modes in standard LLM PPO: ratio clipping flaws, bootstrapping errors, fixed GAE mismatches, unbounded value heads, and advantage normalization noise.",\n "Token-level advantage estimation provides fine-grained credit assignment across generated responses.",\n "Privileged critic design utilizes ground-truth reference data during training without modifying policy inference."\n ],\n "Methodology": [\n "Divergence PPO (DPPO): Constrains absolute probabiliy shifts rather than probability ratios to avoid over-clipping low-probability tokens.",\n "Bounded Value Head & MC Targets: Binds critic predictions to valid reward ranges (e.g., via sigmoid/tanh) and uses full-episode targets to prevent error propagation.",\n "Length-Adaptive GAE & Unnormalized Advantages: Scales lambda based on response length T and removes batch advantage normalization to preserve raw signal."\n ],\n "Application": [\n "Targeted at reinforcement learning alignment for LLMs on mathematical reasoning and rubric-following tasks.",\n "Proven scalable across diverse architectures, from small 1.5B parameter models up to 30B Mixture-of-Experts (MoE) models.",\n "Used strictly during training; the critic is discarded afterward, maintaining standard inference inputs."\n ],\n "Advantages and Limitations": [\n "Advantage: Significantly higher rollout efficiency, needing only 1 response per prompt instead of G >= 4 samples.",\n "Advantage: Combines the stability of group-based methods with the fine-grained credit assignment of token-level critics.",\n "Limitation: Requires memory and compute overhead to maintain a separate critic model during the training phase."\n ],\n "Summary": [\n "BPCO stabilizes single-rollout actor-critic RL for LLMs using six key algorithmic adjustments.",\n "Proves that regularized token-level critics are a compute-efficient alternative to multi-sample group-relative estimators.",\n "Delivers state-of-the-art RL efficiency and performance across varied model sizes and reasoning domains.""")

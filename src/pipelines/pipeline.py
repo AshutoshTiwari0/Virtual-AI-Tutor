@@ -1,5 +1,5 @@
 from src.agents.agents import build_reader_agent,build_search_agent,recommend_yt_videos,make_pdf,make_notes_and_summary,make_ppt
-
+from pathlib import Path
 def study_pipeline(topic:str)->dict:
     """Main pipeline for AI Tutor"""
 
@@ -70,7 +70,9 @@ def study_pipeline(topic:str)->dict:
         ]
     })
 
-    state['ppt'] = "notes.pptx"
-    state['pdf'] = "notes.pdf"
+    tools_dir = Path(__file__).resolve().parent.parent / "tools"
+
+    state["ppt"] = str(tools_dir / "notes.pptx")
+    state["pdf"] = str(tools_dir / "notes.pdf")
 
     return state
