@@ -1,4 +1,5 @@
-from src.agents.agents import build_reader_agent,build_search_agent,recommend_yt_videos,make_pdf,make_notes_and_summary,make_ppt
+from src.agents.agents import build_reader_agent,build_search_agent,recommend_yt_videos,make_pdf,make_ppt
+from src.tools.tools import notes_and_summary_generator
 from pathlib import Path
 def study_pipeline(topic:str)->dict:
     """Main pipeline for AI Tutor"""
@@ -32,13 +33,13 @@ def study_pipeline(topic:str)->dict:
 
     #now summariser agent will work
     print("=======Summariser Agent is Working==========")
-    summary_agent=make_notes_and_summary()
-    summary_result=summary_agent.invoke({
-        "messages":[("user",f"Make notes and summary for {state['read_content']}")]
-        })
-    
-    state['summary']=summary_result['messages'][-1].content
-    print(summary_result)
+    print("=======Summariser is Working==========")
+
+    state["summary"] = notes_and_summary_generator(
+        state["read_content"]
+    )
+
+    print("Summary:\n", state["summary"])
 
     #now yt recommendations
     print("==========Recommendation youtube agent is working============")

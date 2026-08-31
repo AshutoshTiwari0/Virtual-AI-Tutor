@@ -42,7 +42,3 @@ def make_ppt():
 def make_pdf():
     return create_agent(model=llm_generation,tools=[pdf_generator])
 
-#make notes and summary
-def make_notes_and_summary():
-    return create_agent(model=llm_generation,tools=[notes_and_summary_generator])
-
