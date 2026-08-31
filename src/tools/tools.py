@@ -384,27 +384,18 @@ def clean_text(text):
 
 
 @tool
-def ppt_generator(content):
-    """Generate a PPT with following slides
+def ppt_generator(content:str):
+    """Generate a PowerPoint presentation from plain study material.
 
-    Slide 1: Heading Slide
+    The input must be plain text study notes.
+    Do NOT provide JSON, slide objects, dictionaries,
+    lists, or pre-structured PPT content.
 
-    Slide 2: Introduction
-
-    Slide 3: Core Concepts
-
-    Slide 4: Methodology
-
-    Slide 5:Examples
-
-    Slide 6:Advantages and Limitations
-
-    Slide 7:Key Takeaways
-
-    Slide 8: Exam Centric Questions
+    The function itself will organize the material
+    into the required PPT slides.
     
     """
-
+    content = str(content)
     # Initialize Groq LLM
     llm = ChatGroq(
         model_name="openai/gpt-oss-20b",
