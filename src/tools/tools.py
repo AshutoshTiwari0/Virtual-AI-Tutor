@@ -81,6 +81,9 @@ def checkRelevancy(date:str)->bool:
     relevancy=date.split(" ")[1]
     if "Streamed" in Date:
         return False
+    
+    if Date.endswith("y"):
+        return False
 
     d=int(Date)
 
@@ -400,7 +403,7 @@ def ppt_generator(content):
 
     content=content[:6000]
 
-    
+
     result = agent.invoke({
     "messages": [{"role": "user", "content": f"""
                 Extract and organize the important study information
