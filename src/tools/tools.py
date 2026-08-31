@@ -407,9 +407,9 @@ def ppt_generator(content):
 
     # Initialize Groq LLM
     llm = ChatGroq(
-        model_name="openai/gpt-oss-120b",
-        temperature=0.7,
-        max_tokens=1500
+        model_name="openai/gpt-oss-20b",
+        temperature=0.3,
+        max_tokens=1000
     )
 
     #agent for getting output in correct fornat
@@ -418,7 +418,7 @@ def ppt_generator(content):
     response_format=PPT  # Auto-selects ProviderStrategy
     )
 
-    content=content[:6000]
+    content=str(content)[:5000]
 
 
     result = agent.invoke({
