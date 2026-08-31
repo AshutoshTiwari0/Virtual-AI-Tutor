@@ -102,11 +102,11 @@ def read_research_papers(topic)->str:
     # Construct the default API client.
     client = arxiv.Client()
 
-    # Search for the 10 most recent articles matching the keyword "topic."
+    # Search for the 10 most relevant articles matching the keyword "topic."
     search = arxiv.Search(
     query = topic,
     max_results = 10,
-    sort_by = arxiv.SortCriterion.SubmittedDate
+    sort_by = arxiv.SortCriterion.Relevance
     )
 
         # `results` is a generator; you can iterate over its elements one by one...
@@ -286,6 +286,25 @@ def notes_and_summary_generator(text):
 @tool
 def pdf_generator(text):
     """takes text and generates pdf"""
+
+    # Replace problematic unicode chars with latin-1 safe equivalents
+    replacements = {
+        '\u2013': '-',   # en-dash
+        '\u2014': '--',  # em-dash
+        '\u2018': "'",   # left single quote
+        '\u2019': "'",   # right single quote
+        '\u201c': '"',   # left double quote
+        '\u201d': '"',   # right double quote
+        '\u2022': '-',   # bullet
+        '\u2026': '...', # ellipsis
+    }
+    for uni_char, ascii_char in replacements.items():
+        text = text.replace(uni_char, ascii_char)
+    
+    # Fallback: strip any remaining non-latin1 chars
+    text = text.encode('latin-1', 'ignore').decode('latin-1')
+
+
     pdf = FPDF()
 
     pdf.set_margins(15, 15, 15)

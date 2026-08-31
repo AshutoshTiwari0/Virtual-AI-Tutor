@@ -70,7 +70,7 @@ def study_pipeline(topic:str)->dict:
         ]
     })
 
-    state['ppt'] = ppt_output['messages'][-1].content
-    state['pdf'] = pdf_output['messages'][-1].content
+    state['ppt'] = "notes.pptx"
+    state['pdf'] = "notes.pdf"
 
     return state
