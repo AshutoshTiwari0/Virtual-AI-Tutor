@@ -143,7 +143,7 @@ def read_research_papers(topic)->str:
         for page in reader.pages:
             text += page.extract_text() or ""
 
-        return text
+        return text[:6000]
 
 
 # research_paper_content.append(read_research_papers.invoke("machine learning for heart disease classification"))
@@ -155,7 +155,7 @@ def read_research_papers(topic)->str:
 def notes_and_summary_generator(text):
     """Take the text provided and generate notes and summary for it. Use proper headings for notes introduction, methodology, result, summary, exam centric questions. Try to answer in less than 600 words"""
     model = ChatGroq(
-        model_name="openai/gpt-oss-120b")
+        model_name="openai/gpt-oss-120b",max_tokens=1024)
 
     response=model.invoke(f"Take the following text {text} and make short summary notes for it applicable for exam.")
 
@@ -388,7 +388,8 @@ def ppt_generator(content):
     # Initialize Groq LLM
     llm = ChatGroq(
         model_name="openai/gpt-oss-120b",
-        temperature=0.7
+        temperature=0.7,
+        max_tokens=1500
     )
 
     #agent for getting output in correct fornat
@@ -397,6 +398,9 @@ def ppt_generator(content):
     response_format=PPT  # Auto-selects ProviderStrategy
     )
 
+    content=content[:6000]
+
+    
     result = agent.invoke({
     "messages": [{"role": "user", "content": f"""
                 Extract and organize the important study information
