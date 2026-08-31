@@ -158,7 +158,9 @@ def read_research_papers(topic)->str:
 def notes_and_summary_generator(text):
     """Take the text provided and generate notes and summary for it. Use proper headings for notes introduction, methodology, result, summary, exam centric questions. Try to answer in less than 600 words"""
     model = ChatGroq(
-        model_name="openai/gpt-oss-120b",max_tokens=1024)
+        model_name="openai/gpt-oss-120b",max_tokens=800)
+
+    text=text[:12000]
 
     response=model.invoke(f"Take the following text {text} and make short summary notes for it applicable for exam.")
 
