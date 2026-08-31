@@ -409,7 +409,7 @@ def ppt_generator(content:str):
     response_format=PPT  # Auto-selects ProviderStrategy
     )
 
-    content=str(content)[:5000]
+    content=str(content)[:4000]
 
 
     result = agent.invoke({

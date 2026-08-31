@@ -59,7 +59,7 @@ def study_pipeline(topic:str)->dict:
         "messages": [
             (
                 "user",
-                f"Create a PPT for {topic} using these notes:\n{state['summary']}"
+                f"Create a PPT for {topic} using these notes:\n{state['summary'][:4000]}"
             )
         ]
     })
@@ -68,7 +68,7 @@ def study_pipeline(topic:str)->dict:
         "messages": [
             (
                 "user",
-                f"Create a PDF for {topic} using these notes:\n{state['summary']}"
+                f"Create a PDF for {topic} using these notes:\n{state['summary'][:4000]}"
             )
         ]
     })
