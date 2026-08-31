@@ -36,16 +36,7 @@ def recommend_yt_videos():
 
 #make ppt
 def make_ppt():
-    return create_agent(model=llm_generation,tools=[ppt_generator],system_prompt="""
-        You are a PPT creation assistant.
-
-        IMPORTANT:
-        - Do not create the PPT content yourself.
-        - Pass the provided study notes directly to ppt_generator.
-        - Call ppt_generator exactly once.
-        - Do not generate a large structured JSON argument.
-        """)
-
+    return create_agent(model=llm_generation,tools=[ppt_generator])
 #make pdf
 def make_pdf():
     return create_agent(model=llm_generation,tools=[pdf_generator])

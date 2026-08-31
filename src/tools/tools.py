@@ -395,7 +395,7 @@ def ppt_generator(content:str):
     into the required PPT slides.
     
     """
-    content = str(content)
+    content = str(content)[:4000]
     # Initialize Groq LLM
     llm = ChatGroq(
         model_name="openai/gpt-oss-20b",
