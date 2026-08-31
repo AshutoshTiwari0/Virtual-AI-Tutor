@@ -399,7 +399,7 @@ def ppt_generator(content:str):
     llm = ChatGroq(
         model_name="openai/gpt-oss-20b",
         temperature=0.3,
-        max_tokens=1000
+        max_tokens=4000
     )
 
     #agent for getting output in correct fornat
