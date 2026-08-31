@@ -13,11 +13,11 @@ load_dotenv()
 
 
 llm_search = ChatGroq(
-    model="openai/gpt-oss-120b"
+    model="llama-3.1-8b-instant"
 )
 
 llm_generation = ChatGroq(
-    model="openai/gpt-oss-120b"
+    model="llama-3.1-8b-instant"
 )
 
 #search agent 
