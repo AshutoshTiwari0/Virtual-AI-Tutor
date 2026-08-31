@@ -356,16 +356,15 @@ def pdf_generator(text):
 
 
 class PPT(BaseModel):
-    heading:str=Field(description="The title of the ppt")
-    introduction:str=Field(description="The intoduction of the topic")
-    core_concept:str=Field(description="Core concepts of the model explained")
-    methodology:str=Field(description="Methods used for the topic")
-    examples:str=Field(description="Examples on the given topic")
-    advantages:str=Field(description="Advantages of given topic")
-    limitations:str=Field(description="Limitations on given topic")
-    key_takeaways:str=Field(description="Key takeways of given topic")
-    exam_questions:str=Field(description="Exam centric questions on given topics")
-
+    heading: str = Field(description="Short title of the topic")
+    introduction: str = Field(description="Short introduction")
+    core_concept: str = Field(description="Main concepts in simple words")
+    methodology: str = Field(description="Main methods or working steps")
+    examples: str = Field(description="Important examples")
+    advantages: str = Field(description="Main advantages")
+    limitations: str = Field(description="Main limitations")
+    key_takeaways: str = Field(description="Important points to remember")
+    exam_questions: str = Field(description="Short exam questions")
 
 def clean_text(text):
     if isinstance(text, str):
@@ -418,6 +417,14 @@ def ppt_generator(content:str):
                 from the following material.
 
                 Create content suitable for an educational PPT.
+            
+            IMPORTANT:
+            - Do not use LaTeX.
+            - Do not use formulas.
+            - Do not use special mathematical symbols.
+            - Use simple plain English.
+            - Keep every field short.
+            - Fill every field in the PPT schema.
 
                 Study material:
                 {content} """}]
