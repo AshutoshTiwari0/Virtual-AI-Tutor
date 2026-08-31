@@ -12,12 +12,13 @@ from langchain_mistralai import ChatMistralAI
 load_dotenv()
 
 
-llm_search = ChatMistralAI(
-    model="labs-leanstral-1-5")
+llm_search = ChatGroq(
+    model="llama-3.3-70b-versatile"
+)
 
-llm_generation=ChatMistralAI(
-    model="labs-leanstral-1-5")
-
+llm_generation = ChatGroq(
+    model="llama-3.3-70b-versatile"
+)
 
 #search agent 
 def build_search_agent():
