@@ -37,14 +37,16 @@ def web_search(query)-> str:
     Search the internet for given user query and collect relevant points which can be useful for teaching the mentioned topic.
     """
     tavily_client=TavilyClient(api_key=tavily_api_key)
-    response=tavily_client.search(query)
+    response=tavily_client.search(query,max_results=3)
 
     content=[]
     # print(response)
     for r in response['results']:
-       content.append(r["content"])
+        text=r.get("content","")
 
-    return content
+        content.append(text[:2500])
+
+    return "\n\n".join(content)
 
 
 @tool 
