@@ -12,8 +12,8 @@ def study_pipeline(topic:str)->dict:
         "messages":[("user",f"Search information about the mentioned {topic}")]
     })
 
-    state["search_result"]=search_result['messages'][-1].content  #save each agent ka output taki ussi output ko next agent use kr pae
-
+    state["search_result"] = search_result.content
+    
     print("search result is", state['search_result'])
 
     #now reader agent will work

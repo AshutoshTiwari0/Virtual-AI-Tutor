@@ -22,19 +22,7 @@ llm_generation = ChatGroq(
 
 #search agent 
 def build_search_agent():
-    return create_agent(model=llm_search,tools=[web_search],system_prompt="""
-        You are a research assistant for an AI tutor.
-
-        Search the web for reliable information about the given topic.
-
-        Use the web_search tool only once.
-
-        After searching, provide a concise summary containing only
-        the most important factual information useful for teaching.
-
-        Do not repeat the search results.
-        Do not include unnecessary explanations.
-        """)
+    return llm_search
 
 #reader agent
 def build_reader_agent():
