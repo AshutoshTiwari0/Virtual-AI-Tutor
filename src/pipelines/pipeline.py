@@ -8,11 +8,13 @@ def study_pipeline(topic:str)->dict:
     #search agent is working now
     print("====Search Agent is working=====")
     search_agent=build_search_agent()
-    search_result=search_agent.invoke(
-         f"Search information about the mentioned {topic}"
-    )
+    search_result = search_agent.invoke({
+    "messages": [
+        ("user", f"Search information about the mentioned {topic}")
+    ]
+    })
 
-    state["search_result"] = search_result.content
+    state["search_result"] = search_result["messages"][-1].content
 
     print("search result is", state['search_result'])
 

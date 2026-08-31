@@ -22,7 +22,9 @@ llm_generation = ChatGroq(
 
 #search agent 
 def build_search_agent():
-    return llm_search
+    return create_agent(
+        model=llm_search,
+        tools=[web_search])
 
 #reader agent
 def build_reader_agent():
