@@ -1,0 +1,15 @@
+streamlit
+langchain
+langchain-core
+langchain-groq
+langchain-google-genai
+python-dotenv
+pydantic
+
+youtube-search
+arxiv
+requests
+beautifulsoup4
+pypdf
+python-pptx
+reportlab
