@@ -11,7 +11,7 @@ from trafilatura import fetch_url, extract
 from pypdf import PdfReader
 import requests
 from io import BytesIO
-
+import re
 from fpdf import FPDF
 from pptx_renderer import PPTXRenderer
 from langchain_groq import ChatGroq
@@ -56,24 +56,64 @@ def web_search(query)-> str:
 @tool 
 def recommend_youtube_urls(topic)-> str:
     """
-    Recommend Youtube Videos for given topic. The video should have 1000+ views and within 1 year time 
-    """ 
-    
-    recommendations=[]
-
+    Recommend Youtube Videos for given topic. The video should have 1000+ views and within 1 year time.
+    """
+    recommendations = []
 
     try:
-        results=json.loads(YoutubeSearch(topic,max_results=20).to_json()) #search for 20 videos on given topic. Filter videos having 1k+ views and less than 1 year upload time for relevancy
+        results = json.loads(YoutubeSearch(topic, max_results=20).to_json())
     except Exception as e:
         print("YouTube search failed:", e)
         return "Unable to fetch YouTube recommendations right now."
-    
 
-    for videos in results['videos']:
-        if int(videos['views'].split(' views')[0].replace(',',''))>=1000 and checkRelevancy(videos['publish_time']):
-            recommendations.append(videos)
+    for video in results.get('videos', []):
+        try:
+            views = parse_view_count(video['views'])
+            if views >= 1000 and checkRelevancy(video['publish_time']):
+                recommendations.append(video)
+        except Exception as e:
+            print("Skipping video due to parse error:", e, video)
+            continue
 
-    return recommendations
+    if not recommendations:
+        return "No videos found matching the criteria (1000+ views, within the last year)."
+
+    return json.dumps(recommendations)
+
+
+def parse_view_count(views_str: str) -> int:
+    """Parses strings like '1,234 views', '1.2K views', '3.4M views' into an int."""
+    text = views_str.split(' views')[0].strip().replace(',', '')
+    match = re.match(r'^([\d.]+)([KMB]?)$', text, re.IGNORECASE)
+    if not match:
+        return 0
+    num, suffix = match.groups()
+    num = float(num)
+    multiplier = {'': 1, 'K': 1_000, 'M': 1_000_000, 'B': 1_000_000_000}
+    return int(num * multiplier.get(suffix.upper(), 1))
+
+
+def checkRelevancy(date: str) -> bool:
+    parts = date.split(" ")
+    if len(parts) < 2:
+        return False
+
+    Date, relevancy = parts[0], parts[1]
+
+    if "Streamed" in Date or Date.endswith("y"):
+        return False
+
+    if not Date.isdigit():
+        return False
+
+    d = int(Date)
+
+    if (relevancy in ['weeks', 'week'] and d <= 4) \
+        or (relevancy in ['days', 'day'] and d <= 7) \
+        or (relevancy in ['months', 'month'] and d <= 12):
+        return True
+
+    return False
     
 #function to check if the youtube video is a year old or less
 def checkRelevancy(date:str)->bool:
@@ -393,6 +433,9 @@ def ppt_generator(content:str):
     The function itself will organize the material
     into the required PPT slides.
     
+    IMPORTANT: Do NOT use LaTeX syntax (no \\(...\\), \\sum, \\displaystyle, etc).
+    Write any math or formulas in plain text, e.g. "y = sum(w * x)" instead of
+    "\\(\\sum w_{m,n} x_{i+m,j+n}\\)". Avoid unicode escape sequences and unnecessary backslashes.
     """
     content = str(content)[:4000]
     # Initialize Groq LLM
